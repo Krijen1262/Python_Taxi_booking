@@ -57,7 +57,18 @@ class BookingDAL(BaseDAL):
 
     def list_by_customer(self, customer_id: int) -> List[Dict[str, Any]]:
         query = """
-            SELECT * FROM bookings
+            SELECT
+                id,
+                customer_id,
+                driver_id,
+                pickup_location,
+                dropoff_location,
+                pickup_datetime,
+                DATE(pickup_datetime) AS pickup_date,
+                TIME(pickup_datetime) AS pickup_time,
+                status,
+                notes
+            FROM bookings
             WHERE customer_id = %s
             ORDER BY pickup_datetime DESC
         """
@@ -69,7 +80,18 @@ class BookingDAL(BaseDAL):
 
     def list_by_driver(self, driver_id: int) -> List[Dict[str, Any]]:
         query = """
-            SELECT * FROM bookings
+            SELECT
+                id,
+                customer_id,
+                driver_id,
+                pickup_location,
+                dropoff_location,
+                pickup_datetime,
+                DATE(pickup_datetime) AS pickup_date,
+                TIME(pickup_datetime) AS pickup_time,
+                status,
+                notes
+            FROM bookings
             WHERE driver_id = %s
             ORDER BY pickup_datetime DESC
         """
@@ -80,7 +102,21 @@ class BookingDAL(BaseDAL):
         return rows
 
     def list_all(self) -> List[Dict[str, Any]]:
-        query = "SELECT * FROM bookings ORDER BY pickup_datetime DESC"
+        query = """
+            SELECT
+                id,
+                customer_id,
+                driver_id,
+                pickup_location,
+                dropoff_location,
+                pickup_datetime,
+                DATE(pickup_datetime) AS pickup_date,
+                TIME(pickup_datetime) AS pickup_time,
+                status,
+                notes
+            FROM bookings
+            ORDER BY pickup_datetime DESC
+        """
         cursor = self._get_cursor()
         cursor.execute(query)
         rows = cursor.fetchall()

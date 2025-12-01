@@ -6,7 +6,7 @@ from ui.main_app import MainApp
 
 
 def main():
-    # Create shared context (Database + Services)
+    # Create shared context (Database + Services) 
     context = AppContext()
 
     # Create and run the Tkinter main application
