@@ -179,24 +179,29 @@ class BookingDAL(BaseDAL):
         self.db.get_connection().commit()
         cursor.close()
 
-    def has_overlapping_booking(
-        self,
-        driver_id: int,
-        pickup_datetime: datetime,
-    ) -> bool:
+    def update_status(self, booking_id: int, status: str) -> None:
         """
-        Simple overlap check: checks if the driver already has a booking
-        at the same pickup_datetime with an active status.
+        Update the status of a booking.
+        """
+        query = "UPDATE bookings SET status = %s WHERE id = %s"
+        cursor = self._get_cursor()
+        cursor.execute(query, (status, booking_id))
+        self.db.get_connection().commit()
+        cursor.close()
+
+    def has_active_booking_for_driver(self, driver_id: int) -> bool:
+        """
+        Check if the driver already has any active booking
+        (pending/assigned/ongoing). Used to prevent overlapping rides.
         """
         query = """
             SELECT COUNT(*) AS cnt
             FROM bookings
             WHERE driver_id = %s
-              AND pickup_datetime = %s
               AND status IN ('pending', 'assigned', 'ongoing')
         """
         cursor = self._get_cursor()
-        cursor.execute(query, (driver_id, pickup_datetime))
+        cursor.execute(query, (driver_id,))
         row = cursor.fetchone()
         cursor.close()
         return row["cnt"] > 0 if row else False
