@@ -134,7 +134,9 @@ class UserService:
     def login(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """
         Validate user credentials.
-        Returns the user row (dict) if login ok, otherwise None.
+        Returns the user row (dict) enriched with customer/driver data if login ok, otherwise None.
+        For customers: merges customer data and sets 'id' to customer_id for consistency.
+        For drivers: merges driver data and sets 'id' to driver_id for consistency.
         """
 
         user = self.user_dal.get_by_username(username)
@@ -149,5 +151,32 @@ class UserService:
         if input_hash != user["password_hash"]:
             return None
 
-        # Login success
+        # Login success - enrich user object with customer/driver data
+        role = user.get("role")
+        
+        if role == "customer" and user.get("customer_id"):
+            # Fetch customer data and merge into user object
+            customer = self.customer_dal.get_by_id(user["customer_id"])
+            if customer:
+                # Save original user_id before overwriting
+                original_user_id = user.get("id")
+                # Merge customer fields into user object
+                user.update(customer)
+                # Set id to customer_id for consistency (bookings use customer_id)
+                user["id"] = user["customer_id"]
+                # Keep original user_id for reference if needed
+                user["user_id"] = original_user_id
+        elif role == "driver" and user.get("driver_id"):
+            # Fetch driver data and merge into user object
+            driver = self.driver_dal.get_by_id(user["driver_id"])
+            if driver:
+                # Save original user_id before overwriting
+                original_user_id = user.get("id")
+                # Merge driver fields into user object
+                user.update(driver)
+                # Set id to driver_id for consistency
+                user["id"] = user["driver_id"]
+                # Keep original user_id for reference if needed
+                user["user_id"] = original_user_id
+
         return user
