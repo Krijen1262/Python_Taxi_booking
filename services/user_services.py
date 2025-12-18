@@ -1,5 +1,3 @@
-# app/services/user_service.py
-
 from typing import Optional, Dict, Any
 import hashlib
 
@@ -11,8 +9,7 @@ from dataacesslayer.driver_dal import DriverDAL
 
 class UserService:
     """
-    Handles registration and login logic for users.
-    Uses DAL classes to talk to the database.
+    Uses DAL classes to communicate to the database.
     """
 
     def __init__(self, db: Database):
@@ -21,16 +18,8 @@ class UserService:
         self.customer_dal = CustomerDAL(db)
         self.driver_dal = DriverDAL(db)
 
-    # -------------- internal helper ----------------
-
     def _hash_password(self, plain_password: str) -> str:
-        """
-        Simple SHA-256 hashing for passwords.
-        (For assignment this is fine. In real apps use stronger hashing like bcrypt.)
-        """
         return hashlib.sha256(plain_password.encode("utf-8")).hexdigest()
-
-    # -------------- registration ----------------
 
     def register_customer(
         self,
@@ -41,24 +30,14 @@ class UserService:
         username: str,
         password: str,
     ) -> int:
-        """
-        Register a new customer.
-        - Creates a row in 'customers'
-        - Creates a row in 'users' linked to that customer
-        Returns the new user ID.
-        """
-
-        # Check if email already exists as a customer
         existing_customer = self.customer_dal.get_by_email(email)
         if existing_customer:
             raise ValueError("A customer with this email already exists.")
 
-        # Check if username already exists
         existing_user = self.user_dal.get_by_username(username)
         if existing_user:
             raise ValueError("Username is already taken.")
 
-        # 1) create customer
         customer_id = self.customer_dal.create_customer(
             full_name=full_name,
             address=address,
@@ -66,7 +45,6 @@ class UserService:
             email=email,
         )
 
-        # 2) hash password and create user with role 'customer'
         password_hash = self._hash_password(password)
 
         user_id = self.user_dal.create_user(
@@ -92,11 +70,7 @@ class UserService:
     ) -> int:
         """
         Register a new driver.
-        - Creates a row in 'drivers'
-        - Creates a row in 'users' linked to that driver
-        Returns the new user ID.
         """
-
         existing_driver = self.driver_dal.get_by_email(email)
         if existing_driver:
             raise ValueError("A driver with this email already exists.")
@@ -105,7 +79,6 @@ class UserService:
         if existing_user:
             raise ValueError("Username is already taken.")
 
-        # 1) create driver
         driver_id = self.driver_dal.create_driver(
             full_name=full_name,
             address=address,
@@ -116,7 +89,6 @@ class UserService:
             status="available",
         )
 
-        # 2) create user with role 'driver'
         password_hash = self._hash_password(password)
 
         user_id = self.user_dal.create_user(
@@ -129,54 +101,36 @@ class UserService:
 
         return user_id
 
-    # -------------- login ----------------
-
     def login(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """
         Validate user credentials.
-        Returns the user row (dict) enriched with customer/driver data if login ok, otherwise None.
-        For customers: merges customer data and sets 'id' to customer_id for consistency.
-        For drivers: merges driver data and sets 'id' to driver_id for consistency.
         """
-
         user = self.user_dal.get_by_username(username)
         if not user:
             return None
 
         if not user.get("is_active", 1):
-            # user exists but is deactivated
             return None
 
         input_hash = self._hash_password(password)
         if input_hash != user["password_hash"]:
             return None
 
-        # Login success - enrich user object with customer/driver data
         role = user.get("role")
         
         if role == "customer" and user.get("customer_id"):
-            # Fetch customer data and merge into user object
             customer = self.customer_dal.get_by_id(user["customer_id"])
             if customer:
-                # Save original user_id before overwriting
                 original_user_id = user.get("id")
-                # Merge customer fields into user object
                 user.update(customer)
-                # Set id to customer_id for consistency (bookings use customer_id)
                 user["id"] = user["customer_id"]
-                # Keep original user_id for reference if needed
                 user["user_id"] = original_user_id
         elif role == "driver" and user.get("driver_id"):
-            # Fetch driver data and merge into user object
             driver = self.driver_dal.get_by_id(user["driver_id"])
             if driver:
-                # Save original user_id before overwriting
                 original_user_id = user.get("id")
-                # Merge driver fields into user object
                 user.update(driver)
-                # Set id to driver_id for consistency
                 user["id"] = user["driver_id"]
-                # Keep original user_id for reference if needed
                 user["user_id"] = original_user_id
 
         return user

@@ -17,46 +17,34 @@ class LoginPage(tk.Frame):
         super().__init__(parent)
         self.controller = controller
 
-        # ===== GRADIENT BACKGROUND =====
         self.configure(bg="#667eea")
         
-        # Bind to window resize to redraw gradient
         self.bind("<Configure>", self._on_resize)
         
-        # Create canvas for gradient effect
         self.canvas = tk.Canvas(self, highlightthickness=0)
         self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # ===== MAIN CONTAINER =====
         self.main_container = tk.Frame(self.canvas, bg="white")
-        # Use place with specific dimensions that work for both normal and maximized
         self.main_container.place(relx=0.5, rely=0.5, anchor="c", width=800, height=500)
 
-        # ===== LEFT SIDE - IMAGE SECTION =====
         self.left_frame = tk.Frame(self.main_container, bg="#667eea", width=350)
         self.left_frame.pack(side="left", fill="both", expand=False)
         self.left_frame.pack_propagate(False)
 
-        # Try to load decorative image
         self.side_image = None
         try:
             img = Image.open("assets/login_image.jpg")
-            # Will resize on window resize
             self._load_side_image()
         except Exception:
-            # Fallback decorative content
             self._create_fallback_content()
 
-        # ===== RIGHT SIDE - LOGIN FORM =====
         self.right_frame = tk.Frame(self.main_container, bg="white", width=450)
         self.right_frame.pack(side="right", fill="both", expand=False)
         self.right_frame.pack_propagate(False)
         
-        # Inner padding frame
         form_container = tk.Frame(self.right_frame, bg="white")
         form_container.place(relx=0.5, rely=0.5, anchor="c")
 
-        # ===== TITLE =====
         title = tk.Label(
             form_container,
             text="Taxi Booking System",
@@ -75,7 +63,6 @@ class LoginPage(tk.Frame):
         )
         subtitle.pack(pady=(0, 30))
 
-        # ===== FORM =====
         form_frame = tk.Frame(form_container, bg="white")
         form_frame.pack()
 
@@ -124,7 +111,6 @@ class LoginPage(tk.Frame):
         )
         self.password_entry.pack(fill="x", ipady=8, pady=(0, 25))
 
-        # ===== BUTTONS =====
         login_btn = tk.Button(
             form_frame,
             text="Login",
@@ -175,7 +161,6 @@ class LoginPage(tk.Frame):
         width = self.canvas.winfo_width() or 900
         height = self.canvas.winfo_height() or 600
         
-        # Gradient from purple-blue to lighter blue
         step = max(1, height // 100)
         for i in range(0, height, step):
             ratio = i / height
@@ -244,7 +229,6 @@ class LoginPage(tk.Frame):
             )
             return
 
-        # At this point, login is successful
         self.controller.set_current_user(user)
         messagebox.showinfo("Login successful", "Login successful.")
 

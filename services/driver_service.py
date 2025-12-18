@@ -5,10 +5,7 @@ from dataacesslayer.driver_dal import DriverDAL
 
 
 class DriverService:
-    """
-    High-level operations for drivers, used by admin/driver dashboards.
-    Thin wrapper over DriverDAL for now.
-    """
+
 
     def __init__(self, db: Database):
         self.db = db

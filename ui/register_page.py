@@ -6,30 +6,21 @@ from PIL import Image, ImageTk
 
 
 class RegisterPage(tk.Frame):
-    """
-    Enhanced customer registration page with gradient background and side image.
-    Uses UserService from controller.context to create a new customer + user.
-    """
 
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
-        # ===== GRADIENT BACKGROUND =====
         self.configure(bg="#764ba2")
         
-        # Bind to window resize to redraw gradient
         self.bind("<Configure>", self._on_resize)
         
-        # Create canvas for gradient effect
         self.canvas = tk.Canvas(self, highlightthickness=0)
         self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # ===== MAIN CONTAINER =====
         self.main_container = tk.Frame(self.canvas, bg="white")
         self.main_container.place(relx=0.5, rely=0.5, anchor="c", width=820, height=550)
 
-        # ===== LEFT SIDE - FORM =====
         self.left_frame = tk.Frame(self.main_container, bg="white", width=500)
         self.left_frame.pack(side="left", fill="both", expand=False)
         self.left_frame.pack_propagate(False)
@@ -38,7 +29,6 @@ class RegisterPage(tk.Frame):
         form_outer = tk.Frame(self.left_frame, bg="white")
         form_outer.pack(fill="both", expand=True, padx=30, pady=20)
 
-        # ===== TITLE =====
         title = tk.Label(
             form_outer,
             text="Create Account",
@@ -57,7 +47,6 @@ class RegisterPage(tk.Frame):
         )
         subtitle.pack(pady=(0, 15))
 
-        # ===== SCROLLABLE FORM =====
         canvas_frame = tk.Frame(form_outer, bg="white")
         canvas_frame.pack(fill="both", expand=True)
         
@@ -80,12 +69,10 @@ class RegisterPage(tk.Frame):
         form_frame.bind("<Configure>", configure_scroll)
         form_canvas.bind("<Configure>", lambda e: form_canvas.itemconfig(form_canvas_window, width=e.width))
 
-        # Enable mouse wheel scrolling
         def _on_mousewheel(event):
             form_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
         form_canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
-        # ===== FORM FIELDS =====
         self.entries = {}
 
         # User Type Dropdown
@@ -114,10 +101,8 @@ class RegisterPage(tk.Frame):
         self.dynamic_fields_frame = tk.Frame(form_frame, bg="white")
         self.dynamic_fields_frame.pack(fill="both", expand=True)
 
-        # Create initial fields for customer
         self._create_fields_for_type("customer")
 
-        # ===== BUTTONS =====
         btn_frame = tk.Frame(form_frame, bg="white")
         btn_frame.pack(fill="x", pady=(20, 10), padx=5)
 
@@ -151,18 +136,15 @@ class RegisterPage(tk.Frame):
         )
         back_btn.pack(fill="x", ipady=8)
 
-        # ===== RIGHT SIDE - IMAGE SECTION =====
         self.right_frame = tk.Frame(self.main_container, bg="#764ba2", width=320)
         self.right_frame.pack(side="right", fill="both", expand=False)
         self.right_frame.pack_propagate(False)
 
-        # Try to load decorative image
         self.side_image = None
         try:
             img = Image.open("assets/register_image.jpg")
             self._load_side_image()
         except Exception:
-            # Fallback decorative content
             self._create_fallback_content()
 
     def _on_resize(self, event=None):
@@ -175,7 +157,6 @@ class RegisterPage(tk.Frame):
         width = self.canvas.winfo_width() or 900
         height = self.canvas.winfo_height() or 600
         
-        # Gradient from purple to pink-purple
         step = max(1, height // 100)
         for i in range(0, height, step):
             ratio = i / height

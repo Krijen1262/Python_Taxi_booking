@@ -5,10 +5,6 @@ from dataacesslayer.customer_dal import CustomerDAL
 
 
 class CustomerService:
-    """
-    High-level operations for customers, used by admin dashboard.
-    Thin wrapper over CustomerDAL for now.
-    """
 
     def __init__(self, db: Database):
         self.db = db

@@ -23,7 +23,7 @@ class MainApp(tk.Tk):
         self.geometry("900x600")
 
         self.context = context
-        self.current_user = None  # will hold the logged-in user dict
+        self.current_user = None
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -33,7 +33,6 @@ class MainApp(tk.Tk):
 
         self.frames: Dict[str, tk.Frame] = {}
 
-        # Register all pages here
         for PageClass in (
             LoginPage,
             RegisterPage,
@@ -46,7 +45,6 @@ class MainApp(tk.Tk):
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        # Start on login page
         self.show_frame("LoginPage")
 
     def show_frame(self, page_name: str):

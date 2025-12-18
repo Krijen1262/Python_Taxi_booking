@@ -1,5 +1,3 @@
-# app/dataaccesslayer/booking_dal.py
-
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .base_dal import BaseDAL

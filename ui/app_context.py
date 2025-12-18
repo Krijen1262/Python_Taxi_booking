@@ -18,6 +18,5 @@ class AppContext:
 
         self.user_service = UserService(self.db)
         self.booking_service = BookingService(self.db)
-        # Services used by admin / driver dashboards
         self.driver_service = DriverService(self.db)
         self.customer_service = CustomerService(self.db)

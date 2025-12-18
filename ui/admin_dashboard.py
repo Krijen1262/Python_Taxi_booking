@@ -6,14 +6,6 @@ from datetime import datetime
 
 
 class AdminDashboard(tk.Frame):
-    """
-    Admin Dashboard with menu access to:
-    - View All Bookings
-    - Assign Drivers to Bookings
-    - Manage Drivers
-    - Manage Customers
-    - System Overview
-    """
 
     def __init__(self, parent, controller):
         super().__init__(parent, bg="#f8fafc")
@@ -25,17 +17,14 @@ class AdminDashboard(tk.Frame):
         self.container.pack(fill="both", expand=True)
 
     def set_user(self, user):
-        """Set current user and build dashboard"""
         self.user = user
         self._build_dashboard()
 
     def _build_dashboard(self):
-        """Build the dashboard UI"""
         # Clear existing widgets
         for widget in self.container.winfo_children():
             widget.destroy()
 
-        # ===== HEADER =====
         header = tk.Frame(self.container, bg="#dc2626", height=80)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
@@ -67,11 +56,9 @@ class AdminDashboard(tk.Frame):
         )
         logout_btn.pack(side="right")
 
-        # ===== MAIN CONTENT AREA =====
         main_content = tk.Frame(self.container, bg="#f8fafc")
         main_content.pack(fill="both", expand=True, padx=30, pady=20)
 
-        # ===== LEFT SIDEBAR - MENU =====
         sidebar = tk.Frame(main_content, bg="white", width=250)
         sidebar.pack(side="left", fill="y", padx=(0, 20))
         sidebar.pack_propagate(False)
@@ -110,7 +97,6 @@ class AdminDashboard(tk.Frame):
             )
             btn.pack(fill="x", padx=10, pady=2)
 
-        # ===== RIGHT CONTENT AREA =====
         self.content_area = tk.Frame(main_content, bg="white")
         self.content_area.pack(side="right", fill="both", expand=True)
 
@@ -133,7 +119,6 @@ class AdminDashboard(tk.Frame):
             fg="#1f2937"
         ).pack(anchor="w", pady=(0, 30))
 
-        # Get statistics
         try:
             booking_service = self.controller.context.booking_service
             driver_service = self.controller.context.driver_service
@@ -144,7 +129,6 @@ class AdminDashboard(tk.Frame):
             total_customers = len(customer_service.list_all())
             available_drivers = len(driver_service.list_available())
 
-            # Stats cards
             stats = [
                 ("Total Bookings", total_bookings, "#667eea"),
                 ("Total Drivers", total_drivers, "#10b981"),
@@ -178,7 +162,6 @@ class AdminDashboard(tk.Frame):
                     fg="white"
                 ).pack(pady=(0, 20))
 
-            # Recent bookings
             tk.Label(
                 overview_frame,
                 text="Recent Bookings",
@@ -298,7 +281,7 @@ class AdminDashboard(tk.Frame):
             messagebox.showerror("Error", f"Failed to load bookings: {e}")
 
     def _show_assign_driver(self):
-        """Show driver assignment interface"""
+        """Show driver assignment"""
         for widget in self.content_area.winfo_children():
             widget.destroy()
 
@@ -317,7 +300,6 @@ class AdminDashboard(tk.Frame):
             booking_service = self.controller.context.booking_service
             driver_service = self.controller.context.driver_service
 
-            # Get unassigned bookings
             all_bookings = booking_service.list_all()
             unassigned = [b for b in all_bookings if not b.get('driver_id')]
 
@@ -331,7 +313,6 @@ class AdminDashboard(tk.Frame):
                 ).pack(pady=50)
                 return
 
-            # Booking selection
             tk.Label(
                 assign_frame,
                 text="Select Booking:",
@@ -355,7 +336,6 @@ class AdminDashboard(tk.Frame):
             booking_combo['values'] = booking_values
             booking_combo.pack(fill="x", pady=(0, 20))
 
-            # Driver selection
             tk.Label(
                 assign_frame,
                 text="Select Available Driver:",
@@ -414,7 +394,6 @@ class AdminDashboard(tk.Frame):
             messagebox.showerror("Error", f"Failed to load assignment interface: {e}")
 
     def _show_manage_drivers(self):
-        """Show driver management"""
         for widget in self.content_area.winfo_children():
             widget.destroy()
 
@@ -476,7 +455,6 @@ class AdminDashboard(tk.Frame):
             messagebox.showerror("Error", f"Failed to load drivers: {e}")
 
     def _show_manage_customers(self):
-        """Show customer management"""
         for widget in self.content_area.winfo_children():
             widget.destroy()
 

@@ -11,9 +11,5 @@ class BaseDAL:
         self.db = db
 
     def _get_cursor(self, dictionary: bool = True):
-        """
-        Helper to get a new cursor.
-        Set dictionary=True to get rows as dicts instead of tuples.
-        """
         conn = self.db.get_connection()
         return conn.cursor(dictionary=dictionary)

@@ -20,10 +20,8 @@ class CustomerDashboard(tk.Frame):
         self.controller = controller
         self.user = None
 
-        # keep references to sidebar buttons for highlighting
         self.menu_buttons = []
 
-        # Main container
         self.container = tk.Frame(self, bg="#f8fafc")
         self.container.pack(fill="both", expand=True)
 
@@ -38,7 +36,6 @@ class CustomerDashboard(tk.Frame):
         for widget in self.container.winfo_children():
             widget.destroy()
 
-        # ===== HEADER =====
         header = tk.Frame(self.container, bg="#667eea", height=70)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
@@ -46,7 +43,6 @@ class CustomerDashboard(tk.Frame):
         header_content = tk.Frame(header, bg="#667eea")
         header_content.pack(fill="both", expand=True, padx=30, pady=10)
 
-        # Left side - Title and user info
         left_header = tk.Frame(header_content, bg="#667eea")
         left_header.pack(side="left", fill="y")
 
@@ -66,7 +62,6 @@ class CustomerDashboard(tk.Frame):
             fg="#e0e7ff"
         ).pack(anchor="w")
 
-        # Right side - Logout button
         logout_btn = tk.Button(
             header_content,
             text="🚪 Logout",
@@ -84,16 +79,13 @@ class CustomerDashboard(tk.Frame):
         )
         logout_btn.pack(side="right")
 
-        # ===== MAIN CONTENT AREA =====
         main_content = tk.Frame(self.container, bg="#f8fafc")
         main_content.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # ===== LEFT SIDEBAR - MENU =====
         sidebar = tk.Frame(main_content, bg="white", width=220, relief="solid", bd=1)
         sidebar.pack(side="left", fill="y", padx=(0, 15))
         sidebar.pack_propagate(False)
 
-        # Menu header
         menu_header = tk.Frame(sidebar, bg="#667eea", height=50)
         menu_header.pack(fill="x")
         menu_header.pack_propagate(False)
@@ -106,7 +98,6 @@ class CustomerDashboard(tk.Frame):
             fg="white"
         ).pack(expand=True)
 
-        # Menu items with icons
         menu_items = [
             ("🏠 Dashboard", self._show_welcome, "#667eea"),
             ("🚖 Book a Taxi", self._show_book_taxi, "#667eea"),
@@ -117,7 +108,6 @@ class CustomerDashboard(tk.Frame):
 
         self.menu_buttons = []
         for text, command, color in menu_items:
-            # IMPORTANT: pass both the command function and this specific button
             btn = tk.Button(
                 sidebar,
                 text=text,
@@ -135,18 +125,14 @@ class CustomerDashboard(tk.Frame):
                 bd=0
             )
             btn.pack(fill="x")
-            # now that btn exists, re-bind its command so lambda captures THIS btn
             btn.config(command=lambda c=command, b=btn: self._handle_menu_click(c, b))
             self.menu_buttons.append(btn)
 
-            # Add separator
             tk.Frame(sidebar, bg="#e5e7eb", height=1).pack(fill="x")
 
-        # ===== RIGHT CONTENT AREA =====
         self.content_area = tk.Frame(main_content, bg="white", relief="solid", bd=1)
         self.content_area.pack(side="right", fill="both", expand=True)
 
-        # Show welcome screen by default and highlight Dashboard in menu
         if self.menu_buttons:
             self._handle_menu_click(self._show_welcome, self.menu_buttons[0])
         else:
@@ -154,27 +140,18 @@ class CustomerDashboard(tk.Frame):
 
     def _handle_menu_click(self, command, active_button):
         """Handle menu item click with visual feedback and open the right page"""
-        # Reset all buttons
         for btn in self.menu_buttons:
             btn.config(bg="white", fg="#374151")
 
-        # Highlight clicked button
         if active_button is not None:
             active_button.config(bg="#e0e7ff", fg="#667eea")
 
-        # Execute the page function (same functions used by dashboard buttons)
         command()
 
-    # ------------------------------------------------------------------ #
-    #  COMMON: CLEAR CONTENT
-    # ------------------------------------------------------------------ #
     def _clear_content(self):
         for widget in self.content_area.winfo_children():
             widget.destroy()
 
-    # ------------------------------------------------------------------ #
-    #  DASHBOARD / WELCOME
-    # ------------------------------------------------------------------ #
     def _show_welcome(self):
         """Show welcome screen with quick stats"""
         self._clear_content()
@@ -206,7 +183,6 @@ class CustomerDashboard(tk.Frame):
             fg="#6b7280"
         ).pack(pady=(5, 30))
 
-        # Quick stats cards
         stats_frame = tk.Frame(welcome_frame, bg="white")
         stats_frame.pack(fill="x", pady=20)
 
@@ -256,7 +232,6 @@ class CustomerDashboard(tk.Frame):
                 fg="#ef4444"
             ).pack()
 
-        # Quick action buttons
         actions_frame = tk.Frame(welcome_frame, bg="white")
         actions_frame.pack(pady=30)
 
@@ -292,9 +267,6 @@ class CustomerDashboard(tk.Frame):
             bd=0
         ).pack(side="left", padx=10)
 
-    # ------------------------------------------------------------------ #
-    #  BOOK TAXI
-    # ------------------------------------------------------------------ #
     def _show_book_taxi(self):
         """Show book taxi form"""
         self._clear_content()
@@ -315,7 +287,6 @@ class CustomerDashboard(tk.Frame):
             fg="white"
         ).pack(side="left", padx=30, pady=15)
 
-        # Form
         form_frame = tk.Frame(form_container, bg="white")
         form_frame.pack(fill="both", expand=True, padx=50, pady=30)
 
@@ -428,7 +399,6 @@ class CustomerDashboard(tk.Frame):
 
             try:
                 booking_service = self.controller.context.booking_service
-                # Combine date and time into datetime string format "YYYY-MM-DD HH:MM"
                 pickup_datetime_str = f"{date} {time}"
                 booking_id = booking_service.create_booking_for_customer(
                     customer_id=self.user['id'],
@@ -441,7 +411,6 @@ class CustomerDashboard(tk.Frame):
                     f"Booking created successfully!\nBooking ID: {booking_id}"
                 )
 
-                # Clear form
                 pickup_entry.delete(0, tk.END)
                 dropoff_entry.delete(0, tk.END)
                 date_entry.delete(0, tk.END)
@@ -528,11 +497,9 @@ class CustomerDashboard(tk.Frame):
             bd=0
         ).pack(side="right", padx=30)
 
-        # Content
         bookings_frame = tk.Frame(bookings_container, bg="white")
         bookings_frame.pack(fill="both", expand=True, padx=30, pady=20)
 
-        # Get bookings
         try:
             booking_service = self.controller.context.booking_service
             bookings = booking_service.get_customer_bookings(self.user['id'])
@@ -573,7 +540,6 @@ class CustomerDashboard(tk.Frame):
                 ).pack(pady=10)
                 return
 
-            # Create styled table
             style = ttk.Style()
             style.theme_use('clam')
             style.configure(
@@ -594,14 +560,12 @@ class CustomerDashboard(tk.Frame):
             )
             style.map('Treeview', background=[('selected', '#e0e7ff')])
 
-            # Table frame
             table_frame = tk.Frame(bookings_frame, bg="white")
             table_frame.pack(fill="both", expand=True)
 
             columns = ("ID", "Pickup", "Dropoff", "Date", "Time", "Status")
             tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
 
-            # Configure columns
             tree.column("ID", width=50, anchor="center")
             tree.column("Pickup", width=150)
             tree.column("Dropoff", width=150)
@@ -612,7 +576,6 @@ class CustomerDashboard(tk.Frame):
             for col in columns:
                 tree.heading(col, text=col)
 
-            # Add scrollbar
             scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
             tree.configure(yscrollcommand=scrollbar.set)
 
@@ -630,7 +593,6 @@ class CustomerDashboard(tk.Frame):
             tree.pack(side="left", fill="both", expand=True)
             scrollbar.pack(side="right", fill="y")
 
-            # Action buttons
             btn_frame = tk.Frame(bookings_frame, bg="white")
             btn_frame.pack(fill="x", pady=(15, 0))
 
@@ -663,15 +625,12 @@ class CustomerDashboard(tk.Frame):
                 command=cancel_booking,
                 padx=20,
                 pady=10,
-                bd=0
-            ).pack(side="left")
+            bd=0
+        ).pack(side="left")
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load bookings: {e}")
 
-    # ------------------------------------------------------------------ #
-    #  UPDATE BOOKING (still placeholder UI – same as your original)
-    # ------------------------------------------------------------------ #
     def _show_update_booking(self):
         """Show update booking interface"""
         self._clear_content()
@@ -692,7 +651,6 @@ class CustomerDashboard(tk.Frame):
             fg="white"
         ).pack(side="left", padx=30, pady=15)
 
-        # Content
         update_frame = tk.Frame(update_container, bg="white")
         update_frame.pack(fill="both", expand=True, padx=50, pady=30)
 
@@ -719,9 +677,6 @@ class CustomerDashboard(tk.Frame):
             fg="#374151"
         ).pack(pady=20)
 
-    # ------------------------------------------------------------------ #
-    #  PROFILE
-    # ------------------------------------------------------------------ #
     def _show_profile(self):
         """Show user profile"""
         self._clear_content()
@@ -742,18 +697,15 @@ class CustomerDashboard(tk.Frame):
             fg="white"
         ).pack(side="left", padx=30, pady=15)
 
-        # Profile content
         profile_frame = tk.Frame(profile_container, bg="white")
         profile_frame.pack(fill="both", expand=True, padx=50, pady=30)
 
-        # Profile card
         card = tk.Frame(profile_frame, bg="#f9fafb", relief="solid", bd=1)
         card.pack(fill="both", expand=True)
 
         card_inner = tk.Frame(card, bg="#f9fafb")
         card_inner.pack(fill="both", expand=True, padx=40, pady=30)
 
-        # Profile icon
         tk.Label(
             card_inner,
             text="👤",
@@ -761,7 +713,6 @@ class CustomerDashboard(tk.Frame):
             bg="#f9fafb"
         ).pack(pady=(0, 20))
 
-        # Profile info
         info = [
             ("Full Name", self.user.get('full_name', 'N/A')),
             ("Email", self.user.get('email', 'N/A')),
@@ -793,9 +744,6 @@ class CustomerDashboard(tk.Frame):
                 fg="#6b7280"
             ).pack(side="left", padx=10)
 
-    # ------------------------------------------------------------------ #
-    #  LOGOUT
-    # ------------------------------------------------------------------ #
     def _logout(self):
         """Logout user"""
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):

@@ -32,7 +32,6 @@ class DriverDashboard(tk.Frame):
         for widget in self.container.winfo_children():
             widget.destroy()
 
-        # ===== HEADER =====
         header = tk.Frame(self.container, bg="#10b981", height=80)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
@@ -48,7 +47,6 @@ class DriverDashboard(tk.Frame):
             fg="white"
         ).pack(side="left")
 
-        # Status indicator
         status = self.user.get('status', 'available')
         status_color = "#22c55e" if status == "available" else "#ef4444" if status == "busy" else "#6b7280"
         
@@ -81,11 +79,9 @@ class DriverDashboard(tk.Frame):
         )
         logout_btn.pack(side="right")
 
-        # ===== MAIN CONTENT AREA =====
         main_content = tk.Frame(self.container, bg="#f8fafc")
         main_content.pack(fill="both", expand=True, padx=30, pady=20)
 
-        # ===== LEFT SIDEBAR - MENU =====
         sidebar = tk.Frame(main_content, bg="white", width=250)
         sidebar.pack(side="left", fill="y", padx=(0, 20))
         sidebar.pack_propagate(False)
@@ -122,11 +118,9 @@ class DriverDashboard(tk.Frame):
             )
             btn.pack(fill="x", padx=10, pady=2)
 
-        # ===== RIGHT CONTENT AREA =====
         self.content_area = tk.Frame(main_content, bg="white")
         self.content_area.pack(side="right", fill="both", expand=True)
 
-        # Show trips by default
         self._show_assigned_trips()
 
     def _show_assigned_trips(self):
@@ -145,7 +139,6 @@ class DriverDashboard(tk.Frame):
             fg="#1f2937"
         ).pack(anchor="w", pady=(0, 20))
 
-        # Get assigned trips
         try:
             booking_service = self.controller.context.booking_service
             trips = booking_service.get_driver_bookings(self.user['id'])
@@ -160,7 +153,6 @@ class DriverDashboard(tk.Frame):
                 ).pack(pady=50)
                 return
 
-            # Create scrollable frame
             canvas = tk.Canvas(trips_frame, bg="white", highlightthickness=0)
             scrollbar = ttk.Scrollbar(trips_frame, orient="vertical", command=canvas.yview)
             scrollable_frame = tk.Frame(canvas, bg="white")
@@ -173,7 +165,6 @@ class DriverDashboard(tk.Frame):
             canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
             canvas.configure(yscrollcommand=scrollbar.set)
 
-            # Display trips as cards
             for trip in trips:
                 card = tk.Frame(
                     scrollable_frame,
@@ -188,7 +179,6 @@ class DriverDashboard(tk.Frame):
                 card_inner = tk.Frame(card, bg="#f9fafb")
                 card_inner.pack(fill="both", expand=True, padx=20, pady=15)
 
-                # Trip ID and Status
                 header_row = tk.Frame(card_inner, bg="#f9fafb")
                 header_row.pack(fill="x", pady=(0, 10))
 
@@ -217,7 +207,6 @@ class DriverDashboard(tk.Frame):
                     pady=3
                 ).pack(side="right")
 
-                # Trip details
                 details = [
                     ("📍 Pickup:", trip['pickup_location']),
                     ("📍 Drop-off:", trip['dropoff_location']),
@@ -249,10 +238,65 @@ class DriverDashboard(tk.Frame):
                         fg="#6b7280"
                     ).pack(side="left")
 
+                actions_row = tk.Frame(card_inner, bg="#f9fafb")
+                actions_row.pack(fill="x", pady=(10, 0))
+
+                def make_start_handler(booking_id: int):
+                    def _handler():
+                        try:
+                            booking_service.start_ride(booking_id, self.user["id"])
+                            messagebox.showinfo("Ride started", "Ride has been started successfully.")
+                            self._show_assigned_trips()
+                        except Exception as e:
+                            messagebox.showerror("Error", f"Could not start ride: {e}")
+                    return _handler
+
+                def make_complete_handler(booking_id: int):
+                    def _handler():
+                        try:
+                            booking_service.complete_ride(booking_id, self.user["id"])
+                            messagebox.showinfo("Ride completed", "Ride has been completed successfully.")
+                            self.user["status"] = "available"
+                            self._build_dashboard()
+                        except Exception as e:
+                            messagebox.showerror("Error", f"Could not complete ride: {e}")
+                    return _handler
+
+                status = trip["status"]
+                if status == "assigned":
+                    tk.Button(
+                        actions_row,
+                        text="Start Ride",
+                        font=("Segoe UI", 10, "bold"),
+                        bg="#10b981",
+                        fg="white",
+                        activebackground="#059669",
+                        activeforeground="white",
+                        relief="flat",
+                        cursor="hand2",
+                        command=make_start_handler(trip["id"]),
+                        padx=15,
+                        pady=6,
+                    ).pack(side="left")
+                elif status == "ongoing":
+                    tk.Button(
+                        actions_row,
+                        text="Complete Ride",
+                        font=("Segoe UI", 10, "bold"),
+                        bg="#3b82f6",
+                        fg="white",
+                        activebackground="#2563eb",
+                        activeforeground="white",
+                        relief="flat",
+                        cursor="hand2",
+                        command=make_complete_handler(trip["id"]),
+                        padx=15,
+                        pady=6,
+                    ).pack(side="left")
+
             canvas.pack(side="left", fill="both", expand=True)
             scrollbar.pack(side="right", fill="y")
 
-            # Refresh button
             tk.Button(
                 trips_frame,
                 text="Refresh Trips",
@@ -297,7 +341,6 @@ class DriverDashboard(tk.Frame):
             fg="#6b7280"
         ).pack(anchor="w", pady=(0, 30))
 
-        # Status options
         status_var = tk.StringVar(value=current_status)
 
         statuses = [
@@ -341,7 +384,7 @@ class DriverDashboard(tk.Frame):
                 driver_service.update_status(self.user['id'], new_status)
                 self.user['status'] = new_status
                 messagebox.showinfo("Success", f"Status updated to {new_status}")
-                self._build_dashboard()  # Rebuild to update header
+                self._build_dashboard()
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to update status: {e}")
 
@@ -375,7 +418,6 @@ class DriverDashboard(tk.Frame):
             fg="#1f2937"
         ).pack(anchor="w", pady=(0, 20))
 
-        # Profile info
         info = [
             ("Full Name:", self.user.get('full_name', 'N/A')),
             ("Email:", self.user.get('email', 'N/A')),
