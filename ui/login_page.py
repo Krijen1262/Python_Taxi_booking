@@ -244,7 +244,9 @@ class LoginPage(tk.Frame):
             )
             return
 
+        # At this point, login is successful
         self.controller.set_current_user(user)
+        messagebox.showinfo("Login successful", "Login successful.")
 
         role = user["role"]
         if role == "customer":
